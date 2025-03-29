@@ -1,7 +1,15 @@
+Fork: caption/subtitles support
+============
+This is a fork from the original [Youtube-upload by tokland ](https://github.com/tokland/youtube-upload), the main reason for this fork's existence is to add suport for captions to be uploaded to youtube alongside the video. If you used the original youtube-upload you'll have to delete your ".youtube-upload-credentials.json" file, as this new version requires more scopes.
+
+The implementation isn't very good and you guys can see I'm not having time to work on it to make it good enough for a pull request, but the changes are functional (kinda). More on how to use ahead v
+
 Introduction
 ============
 
 Command-line script to upload videos to Youtube using theYoutube [APIv3](https://developers.google.com/youtube/v3/). It should work on any platform (GNU/Linux, BSD, OS X, Windows, ...) that runs Python.
+
+_Youtube-upload_ is a command line Python script that uploads videos to Youtube (it should work on any platform -GNU/Linux, BSD, OS X, Windows, ...- that runs Python) using theYoutube [APIv3](https://developers.google.com/youtube/v3/).
 
 Dependencies
 ============
@@ -45,10 +53,48 @@ The package used to include a default ```client_secrets.json``` file. It does no
 * Top menu: _Enabled API(s)_: Enable all Youtube APIs.
 * Side menu: _APIs & auth_ -> _Credentials_.
 * _Create a Client ID_: Add credentials -> OAuth 2.0 Client ID -> Other -> Name: youtube-upload -> Create -> OK
-* _Download JSON_: Under the section "OAuth 2.0 client IDs". Save the file to your local system. 
+* _Download JSON_: Under the section "OAuth 2.0 client IDs". Save the file to your local system.
 * Use this JSON as your credentials file: `--client-secrets=CLIENT_SECRETS` or copy it to `~/client_secrets.json`.
 
 *Note: ```client_secrets.json``` is a file you can download from the developer console, the credentials file is something auto generated after the first time the script is run and the google account sign in is followed, the file is stored at ```~/.youtube-upload-credentials.json```.*
+
+About the captions/subtitles
+========
+When uploading a video with subtitle it'll take more time, beucase the program has to wait for the video to be processed by youtube before uploading the captions, I didn't find a workaround to be able to upload while the vide is being processed, if you have any info please let me know! There are basically no info about this lib online. For now only srt is supported.
+
+* UPLOAD A VIDEO AND A CAPTION: you can specify both a video and a caption file path to send to youtube, you can also specify the name and language of the caption. Example:
+```
+youtube-upload --caption-file=/foo/bar/caption_folder/my_sub.srt --caption-lang="en" /foo/bar/video_folder/my_video.mkv
+
+# will upload my_video.mkv and my_sub.srt (named "english subtitle") to youtube.
+```
+* AUTO SEARCH FOR CAPTION: using ```--caption-file="auto"``` the program will try to find a srt with a filename that matches the video's. Both files have to be in the same foder. Example:
+```
+youtube-upload --caption-file="auto" --caption-lang="en" /foo/bar/video_folder/my_video.mkv
+
+# will upload my_video.mkv to youtube, try to find my_video.srt so it can also be uploaded to youtube as an English captions
+```
+* MULTIPLE VIDEOS: the videos and captions have to be in the same directory and with the same name (exemple: video_legal.mkv and video_legal.srt, video_chato.mkv and video_chato.srt). Make sure to use ```--caption-file="auto"```. Example:
+```
+youtube-upload --caption-file="auto" --caption-lang="en" /foo/bar/video_folder/*
+
+#will upload all the videos in the folder to youtube, try to find all srt files with matching names and also upload it to youtube as English captions
+```
+
+* All commands available for captions
+```
+  --caption-file=FILE   Caption srt file
+  --caption-lang=string
+                        Default language the for caption is en (ISO 639-1: en
+                        | fr | de | ...)
+  --caption-name=string
+                        Default name for the caption is "Uplodaded from youtube-
+                        upload"
+  --caption-asdraft=string
+                        As default the caption is uploaded and published, by
+                        using "yes" in this option the caption will be
+                        uplodaded as draft
+```
 
 Examples
 ========
@@ -78,12 +124,12 @@ $ youtube-upload \
   anne_sophie_mutter.flv
 tx2Zb-145Yz
 ```
-*Other extra medata available :* 
+*Other extra medata available :*
  ```
- --privacy (public | unlisted | private)  
- --publish-at (YYYY-MM-DDThh:mm:ss.sZ)  
- --location (latitude=VAL,longitude=VAL[,altitude=VAL])  
- --thumbnail (string)  
+ --privacy (public | unlisted | private)
+ --publish-at (YYYY-MM-DDThh:mm:ss.sZ)
+ --location (latitude=VAL,longitude=VAL[,altitude=VAL])
+ --thumbnail (string)
  ```
 
 * Upload a video using a browser GUI to authenticate:
@@ -128,7 +174,7 @@ Using [shoogle](https://github.com/tokland/shoogle):
 
 ```
 $ shoogle execute --client-secret-file client_secret.json \
-                  youtube:v3.videoCategories.list <(echo '{"part": "id,snippet", "regionCode": "es"}')  | 
+                  youtube:v3.videoCategories.list <(echo '{"part": "id,snippet", "regionCode": "es"}')  |
     jq ".items[] | select(.snippet.assignable) | {id: .id, title: .snippet.title}"
 ```
 

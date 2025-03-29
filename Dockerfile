@@ -10,5 +10,3 @@ RUN pip install --upgrade google-api-python-client oauth2client progressbar2 && 
     python setup.py install
 
 USER python
-
-ENTRYPOINT ["youtube-upload"]

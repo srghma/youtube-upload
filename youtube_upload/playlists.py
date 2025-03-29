@@ -7,7 +7,7 @@ def get_playlist(youtube, title):
     playlists = youtube.playlists()
     request = playlists.list(mine=True, part="id,snippet")
     current_encoding = locale.getpreferredencoding()
-    
+
     while request:
         results = request.execute()
         for item in results["items"]:
@@ -42,7 +42,7 @@ def add_video_to_existing_playlist(youtube, playlist_id, video_id):
             }
         }
     }).execute()
-    
+
 def add_video_to_playlist(youtube, video_id, title, privacy="public"):
     """Add video to playlist (by title) and return the full response."""
     playlist_id = get_playlist(youtube, title) or \
